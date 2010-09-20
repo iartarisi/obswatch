@@ -1,0 +1,42 @@
+#!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
+#
+# Copyright 2010 Ionuț Arțăriși <mapleoin@lavabit.com>
+#
+# This file is part of obswatch.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import obswatch
+
+if __name__ == '__main__':
+    print('Getting the list of the latest added packages from OBS...')
+    packages = obswatch.get_latest_packages()
+    watchlist = []
+    for p in packages:
+        print p.name,
+        watchlist.extend(obswatch.get_builds(p))
+
+    while watchlist:
+        watchlist = filter(obswatch.process_build, watchlist)
+
+        # tell the user what we're doing
+        watchie = {}
+        for b in watchlist:
+            try:
+                watchie[b.package.name] += 1
+            except KeyError:
+                watchie[b.package.name] = 0
+        for package, count in watchie.items():
+            print('Still watching %s builds of %s.' % (count, package))
